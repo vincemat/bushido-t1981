@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Bushido: serveur (frein réel)",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["-m", "bushido.app"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "Bushido: serveur (simulation)",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["-m", "bushido.app", "--simulate"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "group": "build"
+    },
+    {
+      "label": "Bushido: tests",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["-m", "pytest", "-q"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "group": { "kind": "test", "isDefault": true }
+    }
+  ]
+}

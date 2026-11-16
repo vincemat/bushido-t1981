@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bushido</title>
+<link rel="stylesheet" href="static/fonts/fonts.css">
+<link rel="stylesheet" href="static/app.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">Bushido</div>
+  <nav class="tabs" id="tabs">
+    <button class="quiet" id="tab-ride" data-action="showTab" data-tab="ride">Rouler</button>
+    <button class="quiet" id="tab-progress" data-action="showTab" data-tab="progress">Suivi</button>
+  </nav>
+  <div class="status" id="brake"><span class="dot"></span><span id="brake-text">Connexion…</span></div>
+  <div class="top-actions">
+    <button class="quiet" id="btn-voice" data-action="toggleVoice" aria-pressed="false">Voix</button>
+    <button class="quiet" id="btn-pip" data-action="togglePip">Mini-fenêtre</button>
+    <button class="quiet" data-action="openSettings">Réglages</button>
+  </div>
+</header>
+
+<div class="banner" id="banner" hidden></div>
+
+<main>
+  <!-- Home: who rides, then what to do -->
+  <section id="view-home">
+    <div class="riders" id="riders"></div>
+    <form class="new-rider" id="new-rider" hidden>
+      <label for="new-rider-name">Prénom du cycliste</label>
+      <input id="new-rider-name" maxlength="30" autocomplete="off">
+      <button type="submit" class="sign">Créer le profil</button>
+      <button type="button" class="quiet" data-action="cancelNewRider">Annuler</button>
+    </form>
+
+    <div class="week" id="week"></div>
+
+    <h1 id="home-title">Que veux-tu faire ?</h1>
+    <div class="choices" id="choices"></div>
+
+    <div class="picker" id="picker" hidden>
+      <div class="cards" id="picker-list"></div>
+      <div class="detail" id="picker-detail" hidden>
+        <h2 id="detail-name"></h2>
+        <p class="lede" id="detail-text"></p>
+        <div class="profile-row">
+          <canvas id="detail-profile" height="140"></canvas>
+          <figure class="plan" id="detail-plan" hidden>
+            <canvas id="detail-map" height="140"></canvas>
+            <figcaption>Tracé vu du ciel</figcaption>
+          </figure>
+        </div>
+        <div class="legend" id="detail-legend"></div>
+        <div class="ghosts" id="detail-ghosts"></div>
+        <button class="sign go" data-action="startActivity" id="detail-start">Démarrer</button>
+      </div>
+      <p class="import">
+        <button class="quiet" data-action="importFile">Ajouter un fichier .zwo ou .gpx</button>
+        <input type="file" id="file-input" accept=".zwo,.gpx" hidden>
+      </p>
+    </div>
+
+    <div class="below">
+      <div class="block" id="calcard"></div>
+      <div class="block">
+        <h2>Classement de la maison</h2>
+        <div id="board"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Progress: goals, weeks, outdoor rides -->
+  <section id="view-progress" hidden>
+    <h1 id="prog-title">Suivi</h1>
+    <div class="goal-grid">
+      <div class="block" id="prog-event"></div>
+      <div class="block" id="prog-week"></div>
+    </div>
+
+    <div class="block">
+      <h2>Tes 12 dernières semaines</h2>
+      <canvas id="prog-weeks" height="200"></canvas>
+      <div class="legend" id="prog-weeks-legend"></div>
+    </div>
+
+    <div class="block">
+      <h2>Ta puissance</h2>
+      <p class="lede" id="prog-power-text"></p>
+      <canvas id="prog-power" height="180"></canvas>
+      <div class="legend" id="prog-power-legend"></div>
+    </div>
+
+    <div class="block">
+      <h2>Ajouter une sortie sur route</h2>
+      <p class="lede">Les sorties dehors comptent dans tes kilomètres et ton objectif de la semaine.</p>
+      <form class="ride-form" id="ride-form">
+        <label>Date <input type="date" id="rf-date" required></label>
+        <label>Distance <span class="entry"><input type="number" id="rf-km" min="0.1" max="1000" step="0.1" required inputmode="decimal"> km</span></label>
+        <label>Durée <span class="entry"><input type="number" id="rf-hours" min="0" max="48" step="1" value="0"> h
+          <input type="number" id="rf-minutes" min="0" max="59" step="1" value="0"> min</span></label>
+        <label>Dénivelé <span class="entry"><input type="number" id="rf-ascent" min="0" max="20000" step="10" value="0"> m</span></label>
+        <label class="wide">Note <input id="rf-note" maxlength="120" placeholder="Facultatif : où, avec qui"></label>
+        <button type="submit" class="sign">Ajouter la sortie</button>
+      </form>
+    </div>
+
+    <div class="block">
+      <h2>Dernières sorties</h2>
+      <div id="prog-rides"></div>
+    </div>
+  </section>
+
+  <!-- Ride: readable from the saddle -->
+  <section id="view-ride" hidden>
+    <div class="ride-head">
+      <div>
+        <div class="ride-title" id="ride-title"></div>
+        <div class="ride-sub" id="ride-sub"></div>
+      </div>
+      <button class="sign" id="btn-finish" data-action="finish">Terminer la séance</button>
+    </div>
+
+    <div class="ride-main">
+      <div class="power" id="power-box">
+        <div class="power-value"><span id="power">0</span><span class="unit">W</span></div>
+        <div class="power-target" id="power-target"></div>
+      </div>
+      <div class="now" id="now"></div>
+    </div>
+
+    <div class="metrics">
+      <div><span class="m-value" id="m-speed">0,0</span><span class="m-label">km/h</span></div>
+      <div><span class="m-value" id="m-cadence">0</span><span class="m-label">tr/min</span></div>
+      <div><span class="m-value" id="m-distance">0,00</span><span class="m-label">km</span></div>
+      <div><span class="m-value" id="m-time">0:00</span><span class="m-label">durée</span></div>
+      <div><span class="m-value" id="m-avg">0</span><span class="m-label">W moyens</span></div>
+    </div>
+
+    <div class="note" id="ride-note" hidden>
+      <span id="ride-note-text"></span>
+      <button class="sign" data-action="finishNow">Terminer et enregistrer</button>
+      <button class="quiet" data-action="dismissNote">Continuer à rouler</button>
+    </div>
+
+    <div class="profile-row">
+      <canvas id="ride-profile" height="170"></canvas>
+      <figure class="plan" id="ride-plan" hidden>
+        <canvas id="ride-map" height="170"></canvas>
+        <figcaption>Tracé vu du ciel</figcaption>
+      </figure>
+    </div>
+    <div class="legend" id="ride-legend"></div>
+
+    <div class="controls" id="controls">
+      <div class="modes" id="modes" hidden>
+        <button class="sign" data-action="setMode" data-mode="slope" id="mode-slope">Pente</button>
+        <button class="sign" data-action="setMode" data-mode="erg" id="mode-erg">Puissance fixe</button>
+      </div>
+      <div class="adjust" id="adjust">
+        <button class="sign round" data-action="nudge" data-sign="-1" aria-label="Diminuer">−</button>
+        <div class="setpoint"><span id="setpoint"></span><span class="m-label" id="setpoint-label"></span></div>
+        <button class="sign round" data-action="nudge" data-sign="1" aria-label="Augmenter">+</button>
+      </div>
+      <button class="quiet" id="btn-skip" data-action="skip" hidden>Passer à l'étape suivante</button>
+      <button class="quiet" id="btn-quit-activity" data-action="quitActivity" hidden>Continuer en sortie libre</button>
+    </div>
+  </section>
+
+  <!-- Summary: what just happened -->
+  <section id="view-summary" hidden>
+    <h1>Séance terminée</h1>
+    <p class="lede" id="sum-activity"></p>
+    <div class="sum-stats" id="sum-stats"></div>
+    <div id="sum-extras"></div>
+    <div class="sum-actions">
+      <a class="sign go" id="sum-export" href="#" download>Télécharger pour Strava</a>
+      <button class="sign" data-action="closeSummary">Retour à l'accueil</button>
+    </div>
+    <p class="hint">Dans Strava : bouton « + », « Téléverser une activité », « Fichier ».</p>
+  </section>
+</main>
+
+<!-- Settings of the active rider -->
+<div class="overlay" id="settings" hidden>
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2 id="settings-title">Réglages</h2>
+      <button class="quiet" data-action="closeSettings">Fermer</button>
+    </div>
+    <div id="settings-fields"></div>
+  </div>
+</div>
+
+<!-- Calibration, step by step -->
+<div class="overlay" id="calibration" hidden>
+  <div class="sheet center">
+    <h2>Calibration du frein</h2>
+    <div class="cal-speed"><span id="cal-speed">0</span><span class="unit">km/h</span></div>
+    <p class="cal-step" id="cal-step"></p>
+    <p class="hint" id="cal-hint"></p>
+    <button class="sign" data-action="closeCalibration" id="cal-close">Annuler</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<workout_file>
+  <name>Test court (4 min)</name>
+  <description>Pour vérifier que tout fonctionne : quatre paliers d'une minute.</description>
+  <sportType>bike</sportType>
+  <workout>
+    <SteadyState Duration="60" Power="0.50"/>
+    <SteadyState Duration="60" Power="0.70"/>
+    <SteadyState Duration="60" Power="0.90"/>
+    <SteadyState Duration="60" Power="0.50"/>
+  </workout>
+</workout_file>

@@ -1,0 +1,12 @@
+<workout_file>
+  <name>Test FTP 20 min</name>
+  <description>Échauffement, trois accélérations, puis 20 minutes à fond et régulier. Le FTP estimé vaut 95 % de la puissance moyenne des 20 minutes.</description>
+  <sportType>bike</sportType>
+  <workout>
+    <Warmup Duration="600" PowerLow="0.45" PowerHigh="0.75"/>
+    <IntervalsT Repeat="3" OnDuration="60" OffDuration="60" OnPower="0.95" OffPower="0.50"/>
+    <SteadyState Duration="300" Power="0.50"/>
+    <FreeRide Duration="1200" ftptest="1"/>
+    <Cooldown Duration="600" PowerLow="0.55" PowerHigh="0.40"/>
+  </workout>
+</workout_file>
